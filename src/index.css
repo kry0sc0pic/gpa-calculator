@@ -1,0 +1,36 @@
+@import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+body {
+  font-family: 'JetBrains Mono', monospace;
+  @apply bg-black text-white;
+}
+
+input[type="number"] {
+  -moz-appearance: textfield;
+}
+
+input::-webkit-outer-spin-button,
+input::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+.input-field {
+  @apply bg-zinc-900 border border-zinc-800 rounded px-3 py-2 w-full focus:outline-none focus:border-white focus:ring-1 focus:ring-white transition-colors text-white;
+}
+
+.btn {
+  @apply px-4 py-2 rounded font-medium transition-colors;
+}
+
+.btn-primary {
+  @apply bg-white text-black hover:bg-zinc-200;
+}
+
+.btn-danger {
+  @apply bg-zinc-700 hover:bg-zinc-600 text-white;
+}
