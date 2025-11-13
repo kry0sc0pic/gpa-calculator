@@ -6,7 +6,9 @@ import {
   BarChart, 
   FileDown, 
   ChevronDown, 
-  ChevronRight
+  ChevronRight,
+  Download,
+  Upload
 } from 'lucide-react';
 import { PDFDownloadLink, Document, Page, Text, View, StyleSheet } from '@react-pdf/renderer';
 
@@ -503,6 +505,46 @@ function App() {
 
   const cgpa = calculateCGPA(semesterGroups);
 
+  const exportToJSON = () => {
+    const dataStr = JSON.stringify(semesterGroups, null, 2);
+    const dataBlob = new Blob([dataStr], { type: 'application/json' });
+    const url = URL.createObjectURL(dataBlob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = 'gpa-data.json';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
+  };
+
+  const importFromJSON = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      try {
+        const content = e.target?.result as string;
+        const importedData = JSON.parse(content);
+        
+        // Validate the imported data structure
+        if (Array.isArray(importedData) && importedData.every(group => 
+          group.id && Array.isArray(group.semesters)
+        )) {
+          setSemesterGroups(importedData);
+          // Clear the file input
+          event.target.value = '';
+        } else {
+          alert('Invalid JSON format. Please ensure the file contains valid semester data.');
+        }
+      } catch {
+        alert('Error reading file. Please ensure it is a valid JSON file.');
+      }
+    };
+    reader.readAsText(file);
+  };
+
   return (
     <div className="min-h-screen bg-black p-4 sm:p-6">
       <div className="max-w-4xl mx-auto">
@@ -633,7 +675,7 @@ function App() {
             </div>
 
             <div className="mt-6 sm:mt-8 flex flex-col sm:flex-row justify-between items-center gap-4">
-              <div className="flex gap-2 sm:gap-4 w-full sm:w-auto">
+              <div className="flex flex-wrap gap-2 sm:gap-4 w-full sm:w-auto">
                 <button
                   onClick={addSemesterGroup}
                   className="btn btn-primary flex items-center gap-2 flex-1 sm:flex-none justify-center"
@@ -655,6 +697,25 @@ function App() {
                     </>
                   )}
                 </PDFDownloadLink>
+                <button
+                  onClick={exportToJSON}
+                  className="btn btn-primary flex items-center gap-2 flex-1 sm:flex-none justify-center"
+                >
+                  <Download size={20} />
+                  <span className="hidden sm:inline">Export JSON</span>
+                  <span className="sm:hidden">Export</span>
+                </button>
+                <label className="btn btn-primary flex items-center gap-2 flex-1 sm:flex-none justify-center cursor-pointer">
+                  <Upload size={20} />
+                  <span className="hidden sm:inline">Import JSON</span>
+                  <span className="sm:hidden">Import</span>
+                  <input
+                    type="file"
+                    accept=".json"
+                    onChange={importFromJSON}
+                    className="hidden"
+                  />
+                </label>
               </div>
               <div className="text-lg sm:text-xl text-center sm:text-right">
                 <span className="text-zinc-400">Overall CGPA: </span>
